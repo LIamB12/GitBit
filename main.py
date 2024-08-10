@@ -2,6 +2,8 @@ import sys
 import requests
 import os
 from dotenv import load_dotenv
+
+WATCHED_EVENTS = ["CreateEvent", "PushEvent"]
 if __name__ == "__main__":
     args = sys.argv
     load_dotenv()
@@ -14,5 +16,10 @@ if __name__ == "__main__":
     }
     event_data = requests.get("https://api.github.com/users/LIamB12/events", headers=headers)
     event_data = event_data.json()
+    commits = []
+
+    for elem in event_data:
+        if elem.get("type") == "PushEvent":
+            commits.append(elem)
     print(event_data)
 
