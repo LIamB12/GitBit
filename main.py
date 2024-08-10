@@ -18,8 +18,20 @@ if __name__ == "__main__":
     event_data = event_data.json()
     commits = []
 
-    for elem in event_data:
-        if elem.get("type") == "PushEvent":
-            commits.append(elem)
-    print(event_data)
+    for event in event_data:
+        if event.get("type") == "PushEvent":
+            commit_messages = []
+            for commit in event.get('payload').get('commits'):
+                commit_messages.append(commit.get('message'))
+            commit_data = {
+                "repo": event.get('repo').get('name'),
+                "commits": commit_messages
+            }
+            commits.append(commit_data)
 
+    for commit in commits:
+        print("____________________________________________________________")
+        print("REPO:", commit.get('repo'))
+        for message in commit.get("commits"): 
+            print(message)
+        print("____________________________________________________________")
