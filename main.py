@@ -2,11 +2,12 @@ import requests
 import os
 from dotenv import load_dotenv
 import datetime
+import sys
 
 COMMIT_GOAL = 15
 CURRENT_DATE = datetime.datetime.now()
 
-if __name__ == "__main__":
+def main():
     load_dotenv()
     access_token = os.getenv("GH_API_KEY")
 
@@ -50,16 +51,27 @@ if __name__ == "__main__":
             current_date_changes[repo] = commit_messages
 
     current_day_commit_count = 0
+    current_date = CURRENT_DATE
+    if len(sys.argv) > 1:
+        try:
+            current_date = datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d")
+        except:
+            print("Usage: python3 main.py [YYYY-MM-DD]")
+            return
+            
 
-    for repo in calendar[CURRENT_DATE.year][CURRENT_DATE.month][CURRENT_DATE.day]:
+    for repo in calendar[current_date.year][current_date.month][current_date.day]:
         print(repo + ":\n")
 
-        for commit_message in calendar[CURRENT_DATE.year][CURRENT_DATE.month][CURRENT_DATE.day][repo]:
+        for commit_message in calendar[current_date.year][current_date.month][current_date.day][repo]:
             print("-", commit_message)
             current_day_commit_count += 1
         print("")
 
     print(current_day_commit_count, "/", COMMIT_GOAL, "Commits Today!")
+
+if __name__ == "__main__":
+    main()
 
 
 
