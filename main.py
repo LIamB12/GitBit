@@ -1,8 +1,10 @@
 import requests
 import os
 from dotenv import load_dotenv
+import datetime
 
 COMMIT_GOAL = 15
+CURRENT_DATE = datetime.datetime.now()
 
 if __name__ == "__main__":
     load_dotenv()
@@ -15,26 +17,51 @@ if __name__ == "__main__":
     }
     event_data = requests.get("https://api.github.com/users/LIamB12/events", headers=headers)
     event_data = event_data.json()
-    repo_changes = {}
-    commit_count = 0
+
+    calendar = {}
+    for year in range(2000, int(CURRENT_DATE.year) + 1):
+        calendar[year] = {}
+        months = [i for i in range(1, 13)]
+        days = [i for i in range(1, 32)]
+
+        for month in months:
+            calendar[year][month] = {}
+            for day in days:
+                calendar[year][month][day] = {}
 
     for event in event_data:
-        if event.get("type") == "PushEvent":
-            repo = event.get('repo').get('name')
-            commits = event.get('payload').get('commits')
-            commit_messages = []
-            for commit in commits:
-                commit_messages.append(commit.get("message"))
-            if repo in repo_changes:
-                repo_changes[repo] += commit_messages
-            else:
-                repo_changes[repo] = commit_messages
-            commit_count += len(commit_messages)
+        if event.get("type") != "PushEvent":
+            continue
 
-    for repo in repo_changes:
-        print(repo + ":")
-        for message in repo_changes.get(repo): 
-            print("-", message)
+        date_string = event.get("created_at").split("T")[0]
+        event_date = datetime.datetime.strptime(date_string, "%Y-%m-%d")
+        current_date_changes = calendar[event_date.year][event_date.month][event_date.day]
+
+
+        repo = event.get('repo').get('name')
+        commits = event.get('payload').get('commits')
+        commit_messages = []
+
+        for commit in commits:
+            commit_messages.append(commit.get("message"))
+        if repo in current_date_changes:
+            current_date_changes[repo] += commit_messages
+        else:
+            current_date_changes[repo] = commit_messages
+
+    current_day_commit_count = 0
+
+    for repo in calendar[CURRENT_DATE.year][CURRENT_DATE.month][CURRENT_DATE.day]:
+        print(repo + ":\n")
+
+        for commit_message in calendar[CURRENT_DATE.year][CURRENT_DATE.month][CURRENT_DATE.day][repo]:
+            print("-", commit_message)
+            current_day_commit_count += 1
         print("")
-    print(commit_count, '/', COMMIT_GOAL, "Commits Today!")
+
+    print(current_day_commit_count, "/", COMMIT_GOAL, "Commits Today!")
+
+
+
+
 
