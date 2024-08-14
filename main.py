@@ -14,7 +14,6 @@ def main():
     headers = {
         "Authorization": "Bearer " + str(access_token),
         "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28"
     }
     event_data = requests.get("https://api.github.com/users/LIamB12/events", headers=headers)
     event_data = event_data.json()
@@ -29,6 +28,7 @@ def main():
             calendar[year][month] = {}
             for day in days:
                 calendar[year][month][day] = {}
+
 
     for event in event_data:
         if event.get("type") != "PushEvent":
@@ -50,8 +50,11 @@ def main():
         else:
             current_date_changes[repo] = commit_messages
 
+
+
     current_day_commit_count = 0
     current_date = CURRENT_DATE
+
     if len(sys.argv) > 1:
         try:
             current_date = datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d")
@@ -59,6 +62,14 @@ def main():
             print("Usage: python3 main.py [YYYY-MM-DD]")
             return
             
+    current_streak = 0
+    streak_counter_date = current_date - datetime.timedelta(days=1)
+
+    while len(calendar[streak_counter_date.year][streak_counter_date.month][streak_counter_date.day]) > 0:
+        current_streak += 1
+        streak_counter_date = streak_counter_date - datetime.timedelta(days=1)
+
+
 
     for repo in calendar[current_date.year][current_date.month][current_date.day]:
         print(repo + ":\n")
@@ -69,6 +80,7 @@ def main():
         print("")
 
     print(current_day_commit_count, "/", COMMIT_GOAL, "Commits Today!")
+    print("Current Streak:", str(current_streak))
 
 if __name__ == "__main__":
     main()
