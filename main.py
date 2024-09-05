@@ -1,3 +1,4 @@
+from logging import raiseExceptions
 import requests
 import os
 from dotenv import load_dotenv
@@ -31,6 +32,8 @@ def main():
 
 
     for event in event_data:
+        if isinstance(event, str):
+            continue
         if event.get("type") != "PushEvent":
             continue
 
