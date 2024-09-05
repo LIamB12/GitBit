@@ -1,5 +1,5 @@
 ## Description
-- Track your commits for a given day
+- Track your commits for a given day, sorted by repo
 - Set a daily commit goal
 - View your streak of daily commits
 
